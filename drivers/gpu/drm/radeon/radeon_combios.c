@@ -779,7 +779,8 @@ void radeon_combios_i2c_init(struct radeon_device *rdev)
 				}
 			}
 		}
-	} else if (rdev->family >= CHIP_R200) {
+	} else if ((rdev->family == CHIP_R200) ||
+		   (rdev->family >= CHIP_R300)) {
 		/* 0x68 */
 		i2c = combios_setup_i2c_bus(rdev, DDC_MONID, 0, 0);
 		rdev->i2c_bus[3] = radeon_i2c_create(dev, &i2c, "MONID");
@@ -3276,6 +3277,14 @@ void radeon_combios_asic_init(struct drm_device *dev)
 	if (rdev->family == CHIP_RS480 &&
 	    rdev->pdev->subsystem_vendor == 0x103c &&
 	    rdev->pdev->subsystem_device == 0x30a4)
+		return;
+
+	/* quirk for rs4xx Compaq Presario V5245EU laptop to make it resume
+	 * - it hangs on resume inside the dynclk 1 table.
+	 */
+	if (rdev->family == CHIP_RS480 &&
+	    rdev->pdev->subsystem_vendor == 0x103c &&
+	    rdev->pdev->subsystem_device == 0x30ae)
 		return;
 
 	/* DYN CLK 1 */
